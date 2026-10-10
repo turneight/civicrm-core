@@ -119,8 +119,13 @@ class CRM_Contribute_Form_Contribution_Confirm extends CRM_Contribute_Form_Contr
    * @throws \CRM_Core_Exception
    */
   public function isRecordPaymentOnly(): bool {
-    $isRecordPaymentOnly = $this->getSubmittedValue('total_amount') && $this->getSubmittedValue('total_amount') !== $this->getExistingContributionValue('total_amount');
-    return $isRecordPaymentOnly;
+    $submittedAmount = $this->getSubmittedValue('total_amount');
+    $existingAmount = $this->getExistingContributionValue('total_amount');
+    if (!$submittedAmount || $existingAmount === NULL) {
+      return FALSE;
+    }
+    // Compare numerically.
+    return abs((float) $submittedAmount - (float) $existingAmount) >= 0.005;
   }
 
   /**
