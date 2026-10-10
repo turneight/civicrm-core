@@ -2590,6 +2590,11 @@ class CRM_Contribute_Form_Contribution_Confirm extends CRM_Contribute_Form_Contr
         // eventually activity.description append price information to source text so keep it 220 to ensure string length doesn't exceed 255 characters.
         220
       );
+      // Keep the original source if the existing contribution already has one.
+      $existingSource = $this->getExistingContributionValue('source');
+      if (!empty($existingSource)) {
+        $contributionParams['source'] = $existingSource;
+      }
     }
 
     $transaction = new CRM_Core_Transaction();
