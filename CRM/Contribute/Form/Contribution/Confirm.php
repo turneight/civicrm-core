@@ -82,6 +82,7 @@ class CRM_Contribute_Form_Contribution_Confirm extends CRM_Contribute_Form_Contr
       $paymentParams = [
         'amount' => $this->getSubmittedValue('total_amount'),
         'contributionID' => $this->getExistingContributionID(),
+        'invoiceID' => $this->getExistingContributionValue('invoice_id'),
       ] + $this->getBasePaymentParams() + $this->prepareParamsForPaymentProcessor($this->getSubmittedValues());
       $payment = Civi\Payment\System::singleton()->getById($this->getPaymentProcessorID());
       $result = $payment->doPayment($paymentParams);
