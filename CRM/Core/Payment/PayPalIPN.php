@@ -244,17 +244,20 @@ class CRM_Core_Payment_PayPalIPN {
       return;
     }
 
-    if ($contribution->total_amount != $input['total_amount']) {
-      Civi::log('paypal_standard')->debug('PayPalIPN: Amount values dont match between database and IPN request. (ID: ' . $contribution->id . ').');
-      echo "Failure: Amount values dont match between database and IPN request<p>";
-      return;
-    }
-
     // check if contribution is already completed, if so we ignore this ipn
     $completedStatusId = CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Completed');
     if ($contribution->contribution_status_id == $completedStatusId) {
       Civi::log('paypal_standard')->debug('PayPalIPN: Returning since contribution has already been handled. (ID: ' . $contribution->id . ').');
       echo 'Success: Contribution has already been handled<p>';
+      return;
+    }
+
+    // check if the amount is correct.
+    $ipnAmount = (float) $input['total_amount'];
+    $balance = CRM_Contribute_BAO_Contribution::getContributionBalance($contribution->id);
+    if ($ipnAmount <= 0 || abs($balance - $ipnAmount) >= 0.005) {
+      Civi::log('paypal_standard')->debug('PayPalIPN: Amount values dont match between database and IPN request. (ID: ' . $contribution->id . ').');
+      echo "Failure: Amount values dont match between database and IPN request<p>";
       return;
     }
 
